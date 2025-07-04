@@ -1,7 +1,103 @@
 <!DOCTYPE html>
-<html><head><title>Dashboard</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
-<body class="bg-light"><div class="container mt-4"><h2>Welcome, {{ user }}</h2><p>Role: <strong>{{ role }}</strong></p>
-<a class="btn btn-success" href="/payment">💰 View Payments</a>
-<a class="btn btn-info" href="/all-payments">📋 All Payroll Records</a>
-{% if role == 'admin' %}<a class="btn btn-warning" href="/admin">🛠 Admin Panel</a>{% endif %}
-<a class="btn btn-danger" href="/logout">🚪 Logout</a></div></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | Govt Payroll</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: url("{{ url_for('static', filename='badge-bg.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+
+    .dashboard-container {
+      background-color: rgba(0, 0, 0, 0.75);
+      margin: 80px auto;
+      max-width: 700px;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .dashboard-container img {
+      width: 70px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #ffc107;
+    }
+
+    .role-label {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      color: #f8f9fa;
+    }
+
+    .btn-custom {
+      font-weight: bold;
+      font-size: 1rem;
+      margin: 10px;
+      padding: 12px 25px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .btn-payments { background-color: #28a745; color: #fff; }
+    .btn-payrolls { background-color: #0dcaf0; color: #000; }
+    .btn-admin    { background-color: #ffc107; color: #000; }
+    .btn-logout   { background-color: #dc3545; color: #fff; }
+
+    .btn-payments:hover { background-color: #218838; transform: scale(1.05); }
+    .btn-payrolls:hover { background-color: #0bbbe6; transform: scale(1.05); }
+    .btn-admin:hover    { background-color: #e0a800; transform: scale(1.05); }
+    .btn-logout:hover   { background-color: #c82333; transform: scale(1.05); }
+
+    .btn i {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Optional Government Emblem -->
+    <img src="{{ url_for('static', filename='emblem.png') }}" alt="Emblem">
+
+    <h1>Welcome, {{ session['user'] }}</h1>
+    <div class="role-label">Role: <strong>{{ session['role'] }}</strong></div>
+
+    <a href="/view" class="btn btn-custom btn-payments">
+      <i class="fas fa-money-check-alt"></i> View Payments
+    </a>
+
+    <a href="/all-payments" class="btn btn-custom btn-payrolls">
+      <i class="fas fa-file-invoice-dollar"></i> All Payroll Records
+    </a>
+
+    <a href="/admin" class="btn btn-custom btn-admin">
+      <i class="fas fa-user-shield"></i> Admin Panel
+    </a>
+
+    <a href="/logout" class="btn btn-custom btn-logout">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</body>
+</html>

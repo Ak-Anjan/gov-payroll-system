@@ -4,6 +4,7 @@ import sqlite3, os
 app = Flask(__name__)
 app.secret_key = 'secretkey123'
 
+# Initialize database
 def init_db():
     if os.path.exists('payroll.db'):
         return
@@ -11,6 +12,7 @@ def init_db():
     c = conn.cursor()
     c.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)")
     c.execute("CREATE TABLE payments (id INTEGER PRIMARY KEY, employee TEXT, amount TEXT, added_by TEXT)")
+
     users = [
         (1, 'admin', 'admin123', 'admin'),
         (2, 'user1', 'user123', 'employee'),
@@ -24,6 +26,7 @@ def init_db():
         (10, 'user9', 'user123', 'employee'),
         (11, 'user10', 'user123', 'employee')
     ]
+
     payments = [
         (1, 'user1', '4500', 'admin'),
         (2, 'user2', '5000', 'admin'),
@@ -36,13 +39,16 @@ def init_db():
         (9, 'user9', '8500', 'admin'),
         (10, 'user10', '9000', 'admin')
     ]
+
     for u in users:
         c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", u)
     for p in payments:
         c.execute("INSERT INTO payments VALUES (?, ?, ?, ?)", p)
+
     conn.commit()
     conn.close()
 
+# Routes
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -50,6 +56,7 @@ def login():
         pword = request.form['password']
         conn = sqlite3.connect('payroll.db')
         c = conn.cursor()
+        # SQLi vulnerability here
         c.execute(f"SELECT * FROM users WHERE username='{uname}' AND password='{pword}'")
         user = c.fetchone()
         if user:
@@ -65,16 +72,22 @@ def dashboard():
         return redirect('/')
     return render_template("dashboard.html", user=session['user'], role=session['role'])
 
-@app.route('/payment')
-def payment():
+@app.route('/view')
+def view():
     if 'user' not in session:
         return redirect('/')
     conn = sqlite3.connect('payroll.db')
     c = conn.cursor()
-    user = request.args.get('employee', session['user'])
-    c.execute(f"SELECT * FROM payments WHERE employee='{user}'")
-    data = c.fetchall()
-    return render_template("payment.html", data=data)
+    employee = request.args.get('employee')
+    if employee:
+        c.execute(f"SELECT * FROM payments WHERE employee='{employee}'")
+        data = c.fetchall()
+    else:
+        data = []
+    return render_template("payment.html", data=data, employee=employee or "")
+
+
+
 
 @app.route('/admin')
 def admin():
@@ -94,17 +107,18 @@ def all_payments():
     c = conn.cursor()
     c.execute("SELECT * FROM payments")
     payments = c.fetchall()
+    conn.close()
     return render_template("all_payments.html", payments=payments)
+
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
+# Run the app
 if __name__ == '__main__':
     init_db()
-    import os
-
-port = int(os.environ.get("PORT", 5000))
-app.run(host='0.0.0.0', port=port)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
